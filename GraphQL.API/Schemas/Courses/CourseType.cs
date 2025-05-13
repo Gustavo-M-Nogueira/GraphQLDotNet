@@ -1,4 +1,7 @@
-﻿namespace GraphQL.API.Schema
+﻿using GraphQL.API.Schemas.Instructors;
+using GraphQL.API.Schemas.Students;
+
+namespace GraphQL.API.Schemas.Courses
 {
     public enum Subject
     {

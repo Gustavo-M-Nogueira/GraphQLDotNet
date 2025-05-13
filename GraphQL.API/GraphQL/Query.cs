@@ -1,7 +1,9 @@
-﻿using System.Threading.Tasks;
-using Bogus;
+﻿using Bogus;
+using GraphQL.API.Schemas.Courses;
+using GraphQL.API.Schemas.Instructors;
+using GraphQL.API.Schemas.Students;
 
-namespace GraphQL.API.Schema
+namespace GraphQL.API.GraphQL
 {
     public class Query
     {
