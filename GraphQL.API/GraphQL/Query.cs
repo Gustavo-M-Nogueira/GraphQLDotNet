@@ -1,4 +1,7 @@
-﻿using Bogus;
+﻿using System.Threading.Tasks;
+using Bogus;
+using GraphQL.API.DataAccess.Repository;
+using GraphQL.API.DTOs;
 using GraphQL.API.Models;
 using GraphQL.API.Schemas.Courses;
 using GraphQL.API.Schemas.Instructors;
@@ -8,47 +11,57 @@ namespace GraphQL.API.GraphQL
 {
     public class Query
     {
-        private readonly Faker<InstructorType> _instructorFaker;
-        private readonly Faker<StudentType> _studentFaker;
-        private readonly Faker<CourseType> _courseFaker;
+        private readonly CoursesRepository _coursesRepository;
 
-        public Query()
+        public Query(CoursesRepository coursesRepository)
         {
-            _instructorFaker = new Faker<InstructorType>()
-                .RuleFor(c => c.Id, f => Guid.NewGuid())
-                .RuleFor(c => c.FirstName, f => f.Name.FirstName())
-                .RuleFor(c => c.LastName, f => f.Name.LastName())
-                .RuleFor(c => c.Salary, f => f.Random.Double(0, 100000));
-
-            _studentFaker = new Faker<StudentType>()
-                .RuleFor(c => c.Id, f => Guid.NewGuid())
-                .RuleFor(c => c.FirstName, f => f.Name.FirstName())
-                .RuleFor(c => c.LastName, f => f.Name.LastName())
-                .RuleFor(c => c.GPA, f => f.Random.Double(1, 4));
-
-            _courseFaker = new Faker<CourseType>()
-                .RuleFor(c => c.Id, f => Guid.NewGuid())
-                .RuleFor(c => c.Name, f => f.Name.JobTitle())
-                .RuleFor(c => c.Subject, f => f.PickRandom<Subject>())
-                .RuleFor(c => c.Instructor, f => _instructorFaker.Generate())
-                .RuleFor(c => c.Students, f => _studentFaker.Generate(3));
+            _coursesRepository = coursesRepository;
         }
-        public IEnumerable<CourseType> GetCourses()
+        public async Task<IEnumerable<CourseType>> GetCourses()
         {
-            List<CourseType> courses = _courseFaker.Generate(5);
+            IEnumerable<CourseDto> coursesDto = await _coursesRepository.GetAll();
+
+            IEnumerable<CourseType> courses = coursesDto.Select(c => new CourseType()
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Subject = c.Subject,
+                Instructor = new InstructorType()
+                {
+                    Id = c.Instructor.Id,
+                    FirstName = c.Instructor.FirstName,
+                    LastName = c.Instructor.LastName,
+                    Salary = c.Instructor.Salary,
+                },
+            });
 
             return courses;
         }
 
         public async Task<CourseType> GetCourseByIdAsync(Guid id)
         {
-            await Task.Delay(1000);
+            CourseDto courseDto = await _coursesRepository.GetById(id);
 
-            CourseType course = _courseFaker.Generate();
+            if (courseDto is null)
+            {
+                throw new GraphQLException("Course not found");
+            }
 
-            course.Id = id;
+            CourseType courseType = new CourseType()
+            {
+                Id = courseDto.Id,
+                Name = courseDto.Name,
+                Subject = courseDto.Subject,
+                Instructor = new InstructorType()
+                {
+                    Id = courseDto.Instructor.Id,
+                    FirstName = courseDto.Instructor.FirstName, 
+                    LastName = courseDto.Instructor.LastName,
+                    Salary = courseDto.Instructor.Salary,
+                },
+            };
 
-            return course;
+            return courseType;
         }
 
 
