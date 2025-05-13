@@ -1,5 +1,6 @@
 using GraphQL.API.DataAccess;
 using GraphQL.API.DataAccess.Repository;
+using GraphQL.API.DataLoader;
 using GraphQL.API.GraphQL;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,8 @@ builder.Services.AddGraphQLServer()
     .AddQueryType<Query>()
     .AddMutationType<Mutation>()
     .AddSubscriptionType<Subscription>()
-    .AddInMemorySubscriptions();
+    .AddInMemorySubscriptions()
+    .AddDataLoader<InstructorDataLoader>();
 
 builder.Services.AddScoped<CoursesRepository>();
 builder.Services.AddScoped<InstructorsRepository>();

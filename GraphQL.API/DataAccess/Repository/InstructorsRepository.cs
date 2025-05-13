@@ -1,4 +1,5 @@
-﻿using GraphQL.API.DTOs;
+﻿using System.Threading.Tasks;
+using GraphQL.API.DTOs;
 using Microsoft.EntityFrameworkCore;
 
 namespace GraphQL.API.DataAccess.Repository
@@ -10,6 +11,31 @@ namespace GraphQL.API.DataAccess.Repository
         public InstructorsRepository(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
+        }
+        public async Task<IEnumerable<InstructorDto>> GetAll()
+        {
+            using (ApplicationDbContext context = _contextFactory.CreateDbContext())
+            {
+                return await context.Instructors.ToListAsync();
+            }
+        }
+
+        public async Task<InstructorDto> GetById(Guid instructorId)
+        {
+            using (ApplicationDbContext context = _contextFactory.CreateDbContext())
+            {
+                return await context.Instructors.FirstOrDefaultAsync(i => i.Id == instructorId);
+            }
+        }
+
+        internal async Task<IEnumerable<InstructorDto>> GetManyByIds(IReadOnlyList<Guid> instructorsIds)
+        {
+            using (ApplicationDbContext context = _contextFactory.CreateDbContext())
+            {
+                return await context.Instructors
+                    .Where(i => instructorsIds.Contains(i.Id))
+                    .ToListAsync();
+            }
         }
 
         public async Task<InstructorDto> Create(InstructorDto instructor)

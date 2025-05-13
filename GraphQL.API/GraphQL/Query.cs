@@ -26,13 +26,7 @@ namespace GraphQL.API.GraphQL
                 Id = c.Id,
                 Name = c.Name,
                 Subject = c.Subject,
-                Instructor = new InstructorType()
-                {
-                    Id = c.Instructor.Id,
-                    FirstName = c.Instructor.FirstName,
-                    LastName = c.Instructor.LastName,
-                    Salary = c.Instructor.Salary,
-                },
+                InstructorId = c.InstructorId,
             });
 
             return courses;
@@ -52,13 +46,6 @@ namespace GraphQL.API.GraphQL
                 Id = courseDto.Id,
                 Name = courseDto.Name,
                 Subject = courseDto.Subject,
-                Instructor = new InstructorType()
-                {
-                    Id = courseDto.Instructor.Id,
-                    FirstName = courseDto.Instructor.FirstName, 
-                    LastName = courseDto.Instructor.LastName,
-                    Salary = courseDto.Instructor.Salary,
-                },
             };
 
             return courseType;
