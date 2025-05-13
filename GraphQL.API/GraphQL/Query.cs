@@ -1,4 +1,5 @@
 ﻿using Bogus;
+using GraphQL.API.Models;
 using GraphQL.API.Schemas.Courses;
 using GraphQL.API.Schemas.Instructors;
 using GraphQL.API.Schemas.Students;

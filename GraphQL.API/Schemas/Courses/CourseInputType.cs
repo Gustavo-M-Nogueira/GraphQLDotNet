@@ -1,4 +1,6 @@
-﻿namespace GraphQL.API.Schemas.Courses
+﻿using GraphQL.API.Models;
+
+namespace GraphQL.API.Schemas.Courses
 {
     public class CourseInputType
     {
