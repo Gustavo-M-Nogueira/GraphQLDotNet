@@ -1,5 +1,5 @@
-﻿using Bogus.DataSets;
-using GraphQL.API.Schemas.Courses;
+﻿using GraphQL.API.Schemas.Courses;
+using HotChocolate.Subscriptions;
 
 namespace GraphQL.API.GraphQL
 {
@@ -12,7 +12,7 @@ namespace GraphQL.API.GraphQL
             _courses = new List<CourseResult>();
         }
 
-        public CourseResult CreateCourse(CourseInputType input)
+        public async Task<CourseResult> CreateCourseAsync(CourseInputType input, [Service] ITopicEventSender topicEventSender)
         {
             CourseResult courseType = new CourseResult()
             {
@@ -23,11 +23,12 @@ namespace GraphQL.API.GraphQL
             };
 
             _courses.Add(courseType);
+            await topicEventSender.SendAsync(nameof(Subscription.CourseCreated), courseType);
 
             return courseType;
         }
 
-        public CourseResult UpdateCourse(Guid id, CourseInputType input)
+        public async Task<CourseResult> UpdateCourseAsync(Guid id, CourseInputType input, [Service] ITopicEventSender topicEventSender)
         {
             CourseResult course = _courses.FirstOrDefault(c => c.Id == id);
 
@@ -40,6 +41,9 @@ namespace GraphQL.API.GraphQL
             course.Name = input.Name;
             course.Subject = input.Subject;
             course.InstructorId = input.InstructorId;
+
+            string updateCourseTopic = $"{course.Id}_{nameof(Subscription.CourseUpdated)}";
+            await topicEventSender.SendAsync(updateCourseTopic, course);
 
             return course;
         }

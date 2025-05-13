@@ -4,12 +4,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddGraphQLServer()
     .AddQueryType<Query>()
-    .AddMutationType<Mutation>();
-
+    .AddMutationType<Mutation>()
+    .AddSubscriptionType<Subscription>()
+    .AddInMemorySubscriptions();
 
 var app = builder.Build();
 
 app.UseRouting();
+app.UseWebSockets();
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapGraphQL("/graphql");
