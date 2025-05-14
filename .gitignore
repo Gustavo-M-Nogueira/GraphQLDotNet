@@ -364,3 +364,4 @@ FodyWeavers.xsd
 /GraphQL.API/school.db
 /GraphQL.API/school.db-wal
 /GraphQL.API/school.db-shm
+/GraphQL.API/firebase-config.json

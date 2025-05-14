@@ -1,3 +1,5 @@
+using FirebaseAdmin;
+using FirebaseAdminAuthentication.DependencyInjection.Extensions;
 using GraphQL.API.DataAccess;
 using GraphQL.API.DataAccess.Repository;
 using GraphQL.API.DataLoader;
@@ -18,7 +20,12 @@ builder.Services.AddGraphQLServer()
     .AddDataLoader<InstructorDataLoader>()
     .AddFiltering()
     .AddSorting()
-    .AddProjections();
+    .AddProjections()
+    .AddAuthorization();
+
+// FireBase Auth
+builder.Services.AddSingleton(FirebaseApp.Create());
+builder.Services.AddFirebaseAuthentication();
 
 builder.Services.AddScoped<CoursesRepository>();
 builder.Services.AddScoped<InstructorsRepository>();
@@ -33,8 +40,8 @@ using (var scope = app.Services.CreateScope())
     db.Database.Migrate(); 
 }
 
-
 app.UseRouting();
+app.UseAuthentication();
 app.UseWebSockets();
 app.UseEndpoints(endpoints =>
 {

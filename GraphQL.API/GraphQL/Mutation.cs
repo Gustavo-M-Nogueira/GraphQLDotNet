@@ -1,11 +1,15 @@
-﻿using GraphQL.API.DataAccess.Repository;
+﻿using System.Security.Claims;
+using FirebaseAdminAuthentication.DependencyInjection.Models;
+using GraphQL.API.DataAccess.Repository;
 using GraphQL.API.DTOs;
 using GraphQL.API.Schemas.Courses;
 using GraphQL.API.Schemas.Instructors;
+using HotChocolate.Authorization;
 using HotChocolate.Subscriptions;
 
 namespace GraphQL.API.GraphQL
 {
+    [Authorize]
     public class Mutation
     {
         private readonly CoursesRepository _coursesRepository;
@@ -17,8 +21,16 @@ namespace GraphQL.API.GraphQL
             _instructorsRepository = instructorsRepository;
         }
 
-        public async Task<CourseResult> CreateCourseAsync(CourseInputType input, [Service] ITopicEventSender topicEventSender)
+        public async Task<CourseResult> CreateCourseAsync(
+            CourseInputType input, 
+            [Service] ITopicEventSender topicEventSender,
+            ClaimsPrincipal claimsPrincipal)
         {
+            string userID = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.ID);
+            string email = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.EMAIL);
+            string username = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.USERNAME);
+            string verified = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.EMAIL_VERIFIED);
+
             CourseDto courseDto = new CourseDto()
             {
                 Name = input.Name,
