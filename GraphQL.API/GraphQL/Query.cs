@@ -1,11 +1,9 @@
 ﻿using System.Threading.Tasks;
-using Bogus;
+using GraphQL.API.DataAccess;
 using GraphQL.API.DataAccess.Repository;
 using GraphQL.API.DTOs;
-using GraphQL.API.Models;
 using GraphQL.API.Schemas.Courses;
-using GraphQL.API.Schemas.Instructors;
-using GraphQL.API.Schemas.Students;
+using Microsoft.EntityFrameworkCore;
 
 namespace GraphQL.API.GraphQL
 {
@@ -17,6 +15,7 @@ namespace GraphQL.API.GraphQL
         {
             _coursesRepository = coursesRepository;
         }
+
         public async Task<IEnumerable<CourseType>> GetCourses()
         {
             IEnumerable<CourseDto> coursesDto = await _coursesRepository.GetAll();
@@ -28,6 +27,22 @@ namespace GraphQL.API.GraphQL
                 Subject = c.Subject,
                 InstructorId = c.InstructorId,
             });
+
+            return courses;
+        }
+
+        [UsePaging(IncludeTotalCount = true, DefaultPageSize = 10)]
+        public async Task<IQueryable<CourseType>> GetPaginatedCourses([Service] IDbContextFactory<ApplicationDbContext> dbContextFactory)
+        {
+            var dbContext = await dbContextFactory.CreateDbContextAsync();
+
+            IQueryable<CourseType> courses = dbContext.Courses.Select(c => new CourseType()
+            {
+                Id = c.Id,
+                Name = c.Name,
+                Subject = c.Subject,
+                InstructorId = c.InstructorId,
+            }).AsNoTracking();
 
             return courses;
         }
