@@ -11,5 +11,6 @@ namespace GraphQL.API.DTOs
         public Guid InstructorId { get; set; }
         public InstructorDto Instructor { get; set; }
         public IEnumerable<StudentDto> Students { get; set; }
+        public string CreatorId { get; set; }
     }
 }

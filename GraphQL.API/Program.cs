@@ -1,5 +1,6 @@
 using FirebaseAdmin;
 using FirebaseAdminAuthentication.DependencyInjection.Extensions;
+using FirebaseAdminAuthentication.DependencyInjection.Models;
 using GraphQL.API.DataAccess;
 using GraphQL.API.DataAccess.Repository;
 using GraphQL.API.DataLoader;
@@ -26,6 +27,10 @@ builder.Services.AddGraphQLServer()
 // FireBase Auth
 builder.Services.AddSingleton(FirebaseApp.Create());
 builder.Services.AddFirebaseAuthentication();
+
+builder.Services.AddAuthorization(
+    o => o.AddPolicy("IsAdmin", 
+        p => p.RequireClaim(FirebaseUserClaimType.EMAIL, "gustavonogueira5002@gmail.com")));
 
 builder.Services.AddScoped<CoursesRepository>();
 builder.Services.AddScoped<InstructorsRepository>();

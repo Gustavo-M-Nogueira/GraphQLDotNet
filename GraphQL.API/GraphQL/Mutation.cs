@@ -27,15 +27,16 @@ namespace GraphQL.API.GraphQL
             ClaimsPrincipal claimsPrincipal)
         {
             string userID = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.ID);
-            string email = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.EMAIL);
-            string username = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.USERNAME);
-            string verified = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.EMAIL_VERIFIED);
+            //string email = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.EMAIL);
+            //string username = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.USERNAME);
+            //string verified = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.EMAIL_VERIFIED);
 
             CourseDto courseDto = new CourseDto()
             {
                 Name = input.Name,
                 Subject = input.Subject,
                 InstructorId = input.InstructorId,
+                CreatorId = userID
             };
 
             courseDto = await _coursesRepository.Create(courseDto);
@@ -76,15 +77,31 @@ namespace GraphQL.API.GraphQL
             return instructor;
         }
 
-        public async Task<CourseResult> UpdateCourseAsync(Guid id, CourseInputType input, [Service] ITopicEventSender topicEventSender)
+        public async Task<CourseResult> UpdateCourseAsync(
+            Guid id, 
+            CourseInputType input, 
+            [Service] ITopicEventSender topicEventSender,
+            ClaimsPrincipal claimsPrincipal)
         {
-            CourseDto courseDto = new CourseDto()
+            string userId = claimsPrincipal.FindFirstValue(FirebaseUserClaimType.ID);
+
+            CourseDto courseDto = await _coursesRepository.GetById(id);
+
+            if (courseDto == null)
             {
-                Id = id,
-                Name = input.Name,
-                Subject = input.Subject,
-                InstructorId = input.InstructorId,
-            };
+                throw new GraphQLException(new Error("Course not found", "COURSE_NOT_FOUND"));
+            }
+
+            if (courseDto.CreatorId != userId)
+            {
+                throw new GraphQLException(new Error("You do not have permission to update this course.", "INVALID_PERMISSION"));
+            }
+
+
+            courseDto.Name = input.Name;
+            courseDto.Subject = input.Subject;
+            courseDto.InstructorId = input.InstructorId;
+            
 
             courseDto = await _coursesRepository.Update(courseDto);
 
@@ -102,9 +119,17 @@ namespace GraphQL.API.GraphQL
             return course;
         }
 
+        [Authorize(Policy = "IsAdmin")]
         public async Task<bool> DeleteCourse(Guid id)
         {
-            return await _coursesRepository.Delete(id);
+            try
+            {
+                return await _coursesRepository.Delete(id);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }
