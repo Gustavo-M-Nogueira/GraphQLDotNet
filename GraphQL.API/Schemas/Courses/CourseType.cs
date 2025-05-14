@@ -13,6 +13,8 @@ namespace GraphQL.API.Schemas.Courses
         public Guid Id { get; set; }
         public string Name { get; set; }
         public Subject Subject { get; set; }
+
+        [IsProjected(true)]
         public Guid InstructorId { get; set; }
 
         [GraphQLNonNullType]

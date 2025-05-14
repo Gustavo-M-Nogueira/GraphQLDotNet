@@ -32,6 +32,7 @@ namespace GraphQL.API.GraphQL
         }
 
         [UsePaging(IncludeTotalCount = true, DefaultPageSize = 10)]
+        [UseProjection]
         [UseFiltering(typeof(CourseFilterType))]
         [UseSorting(typeof(CourseSortType))]
         public async Task<IQueryable<CourseType>> GetPaginatedCourses([Service] IDbContextFactory<ApplicationDbContext> dbContextFactory)
