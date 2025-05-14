@@ -32,6 +32,7 @@ namespace GraphQL.API.GraphQL
         }
 
         [UsePaging(IncludeTotalCount = true, DefaultPageSize = 10)]
+        [UseFiltering(typeof(CourseFilterType))]
         public async Task<IQueryable<CourseType>> GetPaginatedCourses([Service] IDbContextFactory<ApplicationDbContext> dbContextFactory)
         {
             var dbContext = await dbContextFactory.CreateDbContextAsync();

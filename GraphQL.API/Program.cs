@@ -15,7 +15,8 @@ builder.Services.AddGraphQLServer()
     .AddMutationType<Mutation>()
     .AddSubscriptionType<Subscription>()
     .AddInMemorySubscriptions()
-    .AddDataLoader<InstructorDataLoader>();
+    .AddDataLoader<InstructorDataLoader>()
+    .AddFiltering();
 
 builder.Services.AddScoped<CoursesRepository>();
 builder.Services.AddScoped<InstructorsRepository>();
